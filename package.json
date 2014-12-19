@@ -1,0 +1,26 @@
+{
+  "name": "websocketserverhelper",
+  "version": "1.0.0",
+  "description": "Minimalist wrapper for `WebSocketServer` object from NPM `websocket` package.",
+  "main": "websocketserverhelper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "websocket": "1.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexbinary/node-websocketserverhelper.git"
+  },
+  "keywords": [
+    "websocket",
+    "server"
+  ],
+  "author": "Alexandre Bintz <alexandre.bintz@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexbinary/node-websocketserverhelper/issues"
+  },
+  "homepage": "https://github.com/alexbinary/node-websocketserverhelper"
+}
