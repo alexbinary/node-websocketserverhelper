@@ -10,39 +10,43 @@
 "use strict";
 
 var rWebSocket = require('websocket');
+var rHttp      = require('http');
 
 /**
  * Server
  *
  * @constructor
  *
- * @param {http.Server} pHttpServer         - supportive HTTP server
  * @param {array}       pSupportedProtocols - list of supported websocket sub-protocols
  * @param {object}      pConnectionHandler  - connection handler
  *        must have following functions:
  *        - handleConnection({WebSocketConnection})
+ * @param {http.Server} pHttpServer         - supportive HTTP server (optionnal)
  */
-function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
+function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
 
-  /* checks if connection handler is valid
-   */
-  function connectionHandlerIsValid(pConnectionHandler) {
-    return pConnectionHandler && typeof pConnectionHandler.handleConnection == 'function';
-  }
+  console.log('initializing new websocket server');
 
-  if(!pHttpServer) {
-    console.error('ERROR: creating websocket server with invalid HTTP server');
-    return;
-  }
+  this.supportedProtocols = pSupportedProtocols || [];
+  this.connectionHandler  = pConnectionHandler;
+  this.httpServer         = pHttpServer;
 
-  if(!connectionHandlerIsValid(pConnectionHandler)) {
+  if(!connectionHandlerIsValid(this.connectionHandler)) {
     console.warn('WARNING: creating websocket server with invalid connection handler');
   }
 
-  var supportedProtocols = pSupportedProtocols || [];
+  if(!this.httpServer) {
+    console.log('no HTTP server set, creating one');
+
+    this.httpServer = rHttp.createServer();
+    var _this = this;
+    this.httpServer.on('listening', function() {
+      console.log('listening on ' + _this.httpServer.address().address + ':' + _this.httpServer.address().port);
+    });
+  }
 
   this.socketServer = new rWebSocket.server({
-    'httpServer': pHttpServer,
+    'httpServer': this.httpServer,
     autoAcceptConnections: false
   });
 
@@ -60,7 +64,7 @@ function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
       'protocols':  pRequest.requestedProtocols
     });
 
-    var selectedProtocol = selectProtocol(pRequest.requestedProtocols, supportedProtocols);
+    var selectedProtocol = selectProtocol(pRequest.requestedProtocols, _this.supportedProtocols);
     console.log('accepting connection with protocol: ' + (selectedProtocol ? selectedProtocol : 'none'));
     pRequest.accept(selectedProtocol, pRequest.origin);
   });
@@ -69,8 +73,8 @@ function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
 
     console.log('websocket connection');
 
-    if(connectionHandlerIsValid(pConnectionHandler)) {
-      pConnectionHandler.handleConnection(pConnection);
+    if(connectionHandlerIsValid(_this.connectionHandler)) {
+      _this.connectionHandler.handleConnection(pConnection);
     }
   });
 
@@ -78,6 +82,27 @@ function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
 
     console.log('websocket closed: '+ pCode + ': ' + pReason);
   });
+}
+
+/**
+ * Server - start server
+ *
+ * @param {number} pPort - port to listen on, a random port is selected if omitted
+ */
+Server.prototype.listen = function(pPort) {
+
+  this.httpServer.listen(pPort);
+}
+
+/**
+ * Checks if connection handler is valid
+ * Handler is considered valid if it has a callable function named `handleConnection`
+ *
+ * @param {object} pConnectionHandler - connection handler to test
+ */
+function connectionHandlerIsValid(pConnectionHandler) {
+
+  return pConnectionHandler && typeof pConnectionHandler.handleConnection == 'function';
 }
 
 /**
@@ -104,11 +129,11 @@ function selectProtocol(pRequestedProtocols, pSupportedProtocols) {
 /**
  * Create a new Server object
  *
- * @param {http.Server} pHttpServer         - supportive HTTP server
  * @param {array}       pSupportedProtocols - list of supported websocket sub-protocols
  * @param {object}      pConnectionHandler  - connection handler
  *        must have following functions:
  *        - handleConnection({WebSocketConnection})
+ * @param {http.Server} pHttpServer         - supportive HTTP server (optionnal)
  *
  * @return {Server}
  */
