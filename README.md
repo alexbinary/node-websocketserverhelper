@@ -14,6 +14,23 @@ This module is good for experimenting and quick prototyping due to its easy setu
 However it might be not suitable for precise configurations and performances/security requirements.
 
 
+# Minimalistic example
+
+```javascript
+var wsServer = require('websocketserverhelper').createServer(
+  ['echo'],
+  {
+    handleConnection: function(pConnection) {
+      pConnection.on('message', function(pMessageRaw) {
+        pConnection.send(pMessageRaw.utf8Data);
+      });
+    }
+  }
+);
+wsServer.listen(36521);
+```
+
+
 # Module documentation
 
 ## Exported methods
