@@ -10,19 +10,22 @@
 "use strict";
 
 var rWebSocket = require('websocket');
+var rHttp      = require('http');
 
 /**
  * Server
  *
  * @constructor
  *
- * @param {http.Server} pHttpServer         - supportive HTTP server
  * @param {array}       pSupportedProtocols - list of supported websocket sub-protocols
  * @param {object}      pConnectionHandler  - connection handler
  *        must have following functions:
  *        - handleConnection({WebSocketConnection})
+ * @param {http.Server} pHttpServer         - supportive HTTP server (optionnal)
  */
-function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
+function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
+
+  console.log('initializing new websocket server');
 
   /* checks if connection handler is valid
    */
@@ -30,9 +33,16 @@ function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
     return pConnectionHandler && typeof pConnectionHandler.handleConnection == 'function';
   }
 
-  if(!pHttpServer) {
-    console.error('ERROR: creating websocket server with invalid HTTP server');
-    return;
+  if(pHttpServer) {
+    this.httpServer = pHttpServer;
+  } else {
+    console.log('no HTTP server set, creating one');
+
+    this.httpServer = rHttp.createServer();
+    var _this = this;
+    this.httpServer.on('listening', function() {
+      console.log('listening on ' + _this.httpServer.address().address + ':' + _this.httpServer.address().port);
+    });
   }
 
   if(!connectionHandlerIsValid(pConnectionHandler)) {
@@ -42,7 +52,7 @@ function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
   var supportedProtocols = pSupportedProtocols || [];
 
   this.socketServer = new rWebSocket.server({
-    'httpServer': pHttpServer,
+    'httpServer': this.httpServer,
     autoAcceptConnections: false
   });
 
@@ -81,6 +91,16 @@ function Server(pHttpServer, pSupportedProtocols, pConnectionHandler) {
 }
 
 /**
+ * Server - start server
+ *
+ * @param {number} pPort - port to listen on, a random port is selected if omitted
+ */
+Server.prototype.listen = function(pPort) {
+
+  this.httpServer.listen(pPort);
+}
+
+/**
  * Selects a websocket sub-protocol based on requested and supported protocols
  *
  * @param {array} pRequestedProtocols - list of requested websocket sub-protocols
@@ -104,11 +124,11 @@ function selectProtocol(pRequestedProtocols, pSupportedProtocols) {
 /**
  * Create a new Server object
  *
- * @param {http.Server} pHttpServer         - supportive HTTP server
  * @param {array}       pSupportedProtocols - list of supported websocket sub-protocols
  * @param {object}      pConnectionHandler  - connection handler
  *        must have following functions:
  *        - handleConnection({WebSocketConnection})
+ * @param {http.Server} pHttpServer         - supportive HTTP server (optionnal)
  *
  * @return {Server}
  */

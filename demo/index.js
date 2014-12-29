@@ -15,7 +15,6 @@
 
 "use strict";
 
-var rHttp     = require('http');
 var rWsServer = require('./websocketserverhelper');
 
 var defaultPort = 36521;
@@ -32,15 +31,9 @@ var connectionHandler = {
   }
 };
 
-var httpServer = rHttp.createServer();
-httpServer.on('listening', function() {
-  console.log('listening on ' + httpServer.address().address + ':' + httpServer.address().port);
-});
-
 var wsServer = rWsServer.createServer(
-  httpServer,
   supportedProtocols,
   connectionHandler
 );
 
-httpServer.listen(port);
+wsServer.listen(port);
