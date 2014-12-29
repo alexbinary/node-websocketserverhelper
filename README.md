@@ -10,39 +10,63 @@ Features :
 - transparent event logging ;
 - decouple connection handling from generic server logic.
 
+This module is good for experimenting and quick prototyping due to its easy setup and rich log output.
+However it might be not suitable for precise configurations and performances/security requirements.
+
 
 # Module documentation
 
 ## Exported methods
 
-### createServer(httpServer, [protocols], [connectionHandler])
+### createServer([protocols], [connectionHandler], [httpServer])
 
 Creates and returns a new `Server` object with the given connection handler.
-
-`httpServer` is the supportive HTTP server (native Node's `http.Server` object) used by the websocket server.
 
 `protocols` is the list of websocket sub-protocols supported by the server.
 Upon connection the selected sub-protocol is the first protocol requested by the client that
 is supported by the server.
 If none of the protocols requested by the client is supported by the server,
 or if no protocol is requested, no sub-protocol is selected.
+Defaults to an empty array, meaning that no protocol will ever be selected.
+The value can be (re)set via the `supportedProtocols` property.
 
 `connectionHandler` must provide a function `handleConnection` which will be called
 for each connection the server receives, with the `WebSocketConnection` object passed as first parameter.
-If `connectionHandler` does not provide a valid `handleConnection` function a warning message
-is logged in the console and nothing happens when the server receives a connection.
+The handler can be (re)set via the `connectionHandler` property.
+
+`httpServer` is the supportive HTTP server (native Node's `http.Server` object) used by the websocket server.
+If omitted or invalid a default server is created.
+The server can be accessed via the `httpServer` property.
 
 
 # 'Server' object Documentation
 
 ## Constructor
 
-### Server(httpServer, [protocols], [connectionHandler])
+### Server([protocols], [connectionHandler], [httpServer])
 
 Init a new WebSocket server.
 See `createServer()` above.
 
 ## Properties
+
+### supportedProtocols
+
+Array of websocket sub-protocols supported by the server.
+This property is set by the constructor. See constructor documentation for more infos.
+This property can be (re)set at any time.
+
+### connectionHandler
+
+The connection handler called each time a client connect to the server.
+This property is set by the constructor. See constructor documentation for more infos.
+This property can be (re)set at any time.
+
+### httpServer
+
+The supportive HTTP server used by the websocket server (native Node's `http.Server` object).
+This property is set by the constructor. See constructor documentation for more infos.
+Re(setting) this property has no effect.
 
 ### socketServer
 
@@ -78,4 +102,4 @@ NPM `websocket` package : https://www.npmjs.com/package/websocket
 # Contact
 
 Alexandre Bintz <alexandre.bintz@gmail.com>  
-Any comment or suggestion is welcome.
+Comments and suggestions are welcome.
