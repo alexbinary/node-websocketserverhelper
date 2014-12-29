@@ -36,4 +36,4 @@ var wsServer = rWsServer.createServer(
   connectionHandler
 );
 
-wsServer.listen(port);
+wsServer.start(port);

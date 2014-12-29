@@ -89,7 +89,7 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
  *
  * @param {number} pPort - port to listen on, a random port is selected if omitted
  */
-Server.prototype.listen = function(pPort) {
+Server.prototype.start = function(pPort) {
 
   this.httpServer.listen(pPort);
 }

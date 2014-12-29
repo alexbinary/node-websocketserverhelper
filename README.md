@@ -89,6 +89,13 @@ Re(setting) this property has no effect.
 
 The underlying native `WebSocketServer` object.
 
+## Methods
+
+### start([port])
+
+Start the server on specified port.
+If port is omitted a random port is selected.
+
 
 # Run the demo
 
