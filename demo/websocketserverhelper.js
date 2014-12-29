@@ -27,15 +27,15 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
 
   console.log('initializing new websocket server');
 
-  /* checks if connection handler is valid
-   */
-  function connectionHandlerIsValid(pConnectionHandler) {
-    return pConnectionHandler && typeof pConnectionHandler.handleConnection == 'function';
+  this.supportedProtocols = pSupportedProtocols || [];
+  this.connectionHandler  = pConnectionHandler;
+  this.httpServer         = pHttpServer;
+
+  if(!connectionHandlerIsValid(this.connectionHandler)) {
+    console.warn('WARNING: creating websocket server with invalid connection handler');
   }
 
-  if(pHttpServer) {
-    this.httpServer = pHttpServer;
-  } else {
+  if(!this.httpServer) {
     console.log('no HTTP server set, creating one');
 
     this.httpServer = rHttp.createServer();
@@ -44,12 +44,6 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
       console.log('listening on ' + _this.httpServer.address().address + ':' + _this.httpServer.address().port);
     });
   }
-
-  if(!connectionHandlerIsValid(pConnectionHandler)) {
-    console.warn('WARNING: creating websocket server with invalid connection handler');
-  }
-
-  var supportedProtocols = pSupportedProtocols || [];
 
   this.socketServer = new rWebSocket.server({
     'httpServer': this.httpServer,
@@ -70,7 +64,7 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
       'protocols':  pRequest.requestedProtocols
     });
 
-    var selectedProtocol = selectProtocol(pRequest.requestedProtocols, supportedProtocols);
+    var selectedProtocol = selectProtocol(pRequest.requestedProtocols, _this.supportedProtocols);
     console.log('accepting connection with protocol: ' + (selectedProtocol ? selectedProtocol : 'none'));
     pRequest.accept(selectedProtocol, pRequest.origin);
   });
@@ -79,8 +73,8 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
 
     console.log('websocket connection');
 
-    if(connectionHandlerIsValid(pConnectionHandler)) {
-      pConnectionHandler.handleConnection(pConnection);
+    if(connectionHandlerIsValid(_this.connectionHandler)) {
+      _this.connectionHandler.handleConnection(pConnection);
     }
   });
 
@@ -98,6 +92,17 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
 Server.prototype.listen = function(pPort) {
 
   this.httpServer.listen(pPort);
+}
+
+/**
+ * Checks if connection handler is valid
+ * Handler is considered valid if it has a callable function named `handleConnection`
+ *
+ * @param {object} pConnectionHandler - connection handler to test
+ */
+function connectionHandlerIsValid(pConnectionHandler) {
+
+  return pConnectionHandler && typeof pConnectionHandler.handleConnection == 'function';
 }
 
 /**
