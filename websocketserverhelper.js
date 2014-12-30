@@ -31,6 +31,8 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
   this.connectionHandler  = pConnectionHandler;
   this.httpServer         = pHttpServer;
 
+  this.acceptUndefinedProtocol = true;
+
   if(!connectionHandlerIsValid(this.connectionHandler)) {
     console.warn('WARNING: creating websocket server with invalid connection handler');
   }
@@ -65,8 +67,18 @@ function Server(pSupportedProtocols, pConnectionHandler, pHttpServer) {
     });
 
     var selectedProtocol = selectProtocol(pRequest.requestedProtocols, _this.supportedProtocols);
-    console.log('accepting connection with protocol: ' + (selectedProtocol ? selectedProtocol : 'none'));
-    pRequest.accept(selectedProtocol, pRequest.origin);
+    console.log('selected protocol is: ' + (selectedProtocol ? selectedProtocol : 'none'));
+
+    if(selectedProtocol || _this.acceptUndefinedProtocol) {
+
+      console.log('accepting connection');
+      pRequest.accept(selectedProtocol, pRequest.origin);
+
+    } else {
+
+      console.log('rejecting connection');
+      pRequest.reject();
+    }
   });
 
   this.socketServer.on('connect', function(pConnection) {

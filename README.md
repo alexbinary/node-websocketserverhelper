@@ -40,12 +40,13 @@ wsServer.start(36521);
 Creates and returns a new `Server` object with the given connection handler.
 
 `protocols` is the list of websocket sub-protocols supported by the server.
-Upon connection the selected sub-protocol is the first protocol requested by the client that
-is supported by the server.
+For every new connection the server selects the first sub-protocol requested by the client that is in this list.
 If none of the protocols requested by the client is supported by the server,
 or if no protocol is requested, no sub-protocol is selected.
-Defaults to an empty array, meaning that no protocol will ever be selected.
-The value can be (re)set via the `supportedProtocols` property.
+In this case, if the `acceptUndefinedProtocol` property is set to `false` then the connection is rejected.
+Otherwise the connection is accepted with no sub-protocol.  
+This parameter defaults to an empty array if omitted, meaning that no protocol will ever be selected.  
+The list of supported protocols can be (re)set via the `supportedProtocols` property.
 
 `connectionHandler` must provide a function `handleConnection` which will be called
 for each connection the server receives, with the `WebSocketConnection` object passed as first parameter.
@@ -67,11 +68,12 @@ See `createServer()` above.
 
 ## Properties
 
-### supportedProtocols
+### acceptUndefinedProtocol
 
-Array of websocket sub-protocols supported by the server.
-This property is set by the constructor. See constructor documentation for more infos.
-This property can be (re)set at any time.
+If `true`, the server will be allowed not to select any sub-protocol, if it thinks it should do so based on the protocols requested by the client.
+If `false`, any connection that make the server not select any sub-protocol will be rejected.
+
+Default value is `true`.
 
 ### connectionHandler
 
@@ -88,6 +90,13 @@ Re(setting) this property has no effect.
 ### socketServer
 
 The underlying native `WebSocketServer` object.
+
+### supportedProtocols
+
+Array of websocket sub-protocols supported by the server.
+This property is set by the constructor. See constructor documentation for more infos.
+This property can be (re)set at any time.
+
 
 ## Methods
 
