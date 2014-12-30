@@ -11,7 +11,7 @@ Features :
 - decouple connection handling from generic server logic.
 
 This module is good for experimenting and quick prototyping due to its easy setup and rich log output.
-However it might be not suitable for precise configurations and performances/security requirements.
+However it might not be suited when precise configurations, performances, or security are required.
 
 
 # Minimalistic example
