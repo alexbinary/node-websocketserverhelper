@@ -27,7 +27,7 @@ var wsServer = require('websocketserverhelper').createServer(
     }
   }
 );
-wsServer.listen(36521);
+wsServer.start(36521);
 ```
 
 
