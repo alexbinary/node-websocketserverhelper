@@ -1,6 +1,6 @@
 {
   "name": "websocketserverhelper",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Minimalist wrapper for `WebSocketServer` object from NPM `websocket` package.",
   "main": "websocketserverhelper.js",
   "scripts": {
