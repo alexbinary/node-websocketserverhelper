@@ -97,26 +97,6 @@ Start the server on specified port.
 If port is omitted a random port is selected.
 
 
-# Run the demo
-
-You need to have Node.js installed to run the demo.
-
-Launch the demo app with :
-
-    cd demo/
-    node index.js
-
-You can use http://software.hixie.ch/utilities/js/websocket/ as a client application.
-Enter `ws://localhost:36521` in "WebSocket URL".
-
-The app launches on port `36521` by default.
-You can specify another port by passing it as first argument. For example
-
-    node index.js 42424
-
-Will run the app on port `42424`. In that case use `ws://localhost:42424` in the client.
-
-
 # Infos
 
 WebSocket overview on MDN : https://developer.mozilla.org/en-US/docs/Web/API/WebSocket  
